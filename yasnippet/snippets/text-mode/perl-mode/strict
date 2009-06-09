@@ -1,0 +1,5 @@
+#name : use strict; use warnings; 
+# --
+use strict;
+use warnings;
+
