@@ -3,7 +3,9 @@
 
 (defun nml-load-clojure ()
   (autoload 'clojure-mode "clojure-mode" "A major mode for Clojure" t)
-  (add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode)))
+  (add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
+   (defun lisp-enable-paredit-hook () (paredit-mode 1))
+   (add-hook 'clojure-mode-hook 'lisp-enable-paredit-hook))
 
 (defun nml-load-haskell ()
   (load "haskell-mode/haskell-site-file")
