@@ -2,11 +2,8 @@
   (require 'scala-mode-auto))
 
 (defun nml-load-clojure ()
-  (require 'clojure-auto)
-  (require 'clojure-paredit)
-  (setq swank-clojure-jar-path "/usr/local/lib/clojure/clojure.jar")
-  (setq swank-clojure-java-path "/usr/bin/java")
-  (require 'swank-clojure-autoload))
+  (autoload 'clojure-mode "clojure-mode" "A major mode for Clojure" t)
+  (add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode)))
 
 (defun nml-load-haskell ()
   (load "haskell-mode/haskell-site-file")
