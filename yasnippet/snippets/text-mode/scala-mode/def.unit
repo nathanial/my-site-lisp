@@ -1,6 +1,0 @@
-#Author : Nathan Hartman <nathanial.hartman@gmail.com>
-#name : def f {...}
-# --
-def ${1:name} {
-  $0
-}

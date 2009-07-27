@@ -1,4 +1,0 @@
-#Author : Nathan Hartman <nathanial.hartman@gmail.com>
-#name : assert(x != y, "msg") $0
-# --
-assert(${1:x} != ${2:y}, "${3:msg}") $0
