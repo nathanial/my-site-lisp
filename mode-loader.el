@@ -59,7 +59,7 @@
 (defun nml-load-yasnippet ()
   (require 'yasnippet)
   (yas/initialize)
-  (yas/load-directory "/Library/Application Support/Aquamacs Emacs/yasnippet/snippets"))
+  (yas/load-directory "~/.emacs.d/snippets"))
 
 (defun nml-load-caml ()
   (add-to-list 'auto-mode-alist '("\\.ml[iylp]?$" . caml-mode))
@@ -130,5 +130,9 @@
 	       (outline-minor-mode)
 	       (hide-other)))
   ;;lisp
-  (global-set-key "\M-?" 'lisp-complete-symbol))
+  (global-set-key "\M-?" 'lisp-complete-symbol)
 
+  ;;yasnippet
+  (add-hook 'javascript-mode
+	    '(lambda ()
+	       (yas/minor-mode))))
