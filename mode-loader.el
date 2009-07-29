@@ -47,8 +47,18 @@
     (set-face-background 'cperl-array-face "wheat")
     (set-face-background 'cperl-hash-face "wheat")))
 
+(defun auto-reload-firefox-on-after-save-hook ()
+  (add-hook 'after-save-hook
+	    '(lambda ()
+	       (interactive)
+	       (comint-send-string (inferior-moz-process)
+				   "setTimeout(BrowserReload(), \"1000\");"))
+	    'append 'local))
+
 (defun nml-load-nxml ()
-  (load "nxhtml/autostart.el"))
+  (add-hook 'nxhtml-mode-hook 'auto-reload-firefox-on-after-save-hook)
+  (add-hook 'javascript-mode-hook 'auto-reload-firefox-on-after-save-hook)
+  (add-hook 'css-mode-hook 'auto-reload-firefox-on-after-save-hook))
 
 (defun nml-load-ioke ()
   (require 'ioke-mode))
@@ -58,6 +68,7 @@
 
 (defun nml-load-yasnippet ()
   (require 'yasnippet)
+  (add-to-list 'yas/extra-mode-hooks 'javascript-mode-hook)
   (yas/initialize)
   (yas/load-directory "~/.emacs.d/snippets"))
 
@@ -130,9 +141,4 @@
 	       (outline-minor-mode)
 	       (hide-other)))
   ;;lisp
-  (global-set-key "\M-?" 'lisp-complete-symbol)
-
-  ;;yasnippet
-  (add-hook 'javascript-mode
-	    '(lambda ()
-	       (yas/minor-mode))))
+  (global-set-key "\M-?" 'lisp-complete-symbol))
