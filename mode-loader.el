@@ -1,3 +1,9 @@
+
+(defun nml-load-paredit ()
+  (autoload 'paredit-mode "paredit"
+    "Minor mode for pseudo-structurally editing Lisp code."
+    t))
+
 (defun nml-load-scala ()
   (require 'scala-mode-auto))
 
@@ -142,3 +148,7 @@
 	       (hide-other)))
   ;;lisp
   (global-set-key "\M-?" 'lisp-complete-symbol))
+
+(defun nml-load-js2 ()
+  (autoload 'js2-mode "js2" nil t)
+  (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode)))

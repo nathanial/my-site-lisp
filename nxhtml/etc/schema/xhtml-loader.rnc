@@ -1,1 +1,1 @@
-include "../../../../etc/schema/xhtml.rnc"
+include "../../../../23.0.91/etc/schema/xhtml.rnc"
