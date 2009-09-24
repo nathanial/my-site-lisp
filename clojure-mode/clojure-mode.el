@@ -573,7 +573,9 @@ check for contextual indenting."
   (when-not 1)
   (with-local-vars 1)
   (with-open 1)
-  (with-precision 1))
+  (with-precision 1)
+  (with-package-vars 1)
+  (package 1))
 
 ;;; SLIME integration
 

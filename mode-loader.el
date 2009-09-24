@@ -7,13 +7,18 @@
 (defun nml-load-scala ()
   (require 'scala-mode-auto))
 
+(defun nml-add-to-load-path (directory)
+  (add-to-list 'load-path (concat nathans-site-lisp directory)))
+
 (defun nml-load-clojure ()
+  (nml-add-to-load-path "clojure-mode")
   (autoload 'clojure-mode "clojure-mode" "A major mode for Clojure" t)
   (add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
    (defun lisp-enable-paredit-hook () (paredit-mode 1))
    (add-hook 'clojure-mode-hook 'lisp-enable-paredit-hook))
 
 (defun nml-load-haskell ()
+  (nml-add-to-load-path "haskell-mode")
   (load "haskell-mode/haskell-site-file")
   (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
   (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
@@ -26,6 +31,7 @@
 
 (defun nml-load-ruby ()
   (require 'ruby-mode)
+  (nml-add-to-load-path "ruby-mode")
   (add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
   (add-to-list 'interpreter-mode-alist '("ruby" . ruby-mode))
   (autoload 'run-ruby "inf-ruby" "Run an inferior Ruby Process")
