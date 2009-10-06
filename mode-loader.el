@@ -147,11 +147,7 @@
 		 (setenv "EDITOR" "emacs"))))
   ;;outline minor mode
   (setq outline-minor-mode-prefix "\C-o")
-  ;;python
-  (add-hook 'python-mode-hook
-	    '(lambda ()
-	       (outline-minor-mode)
-	       (hide-other)))
+  (setq hs-minor-mode-prefix "\C-c")
   ;;lisp
   (global-set-key "\M-?" 'lisp-complete-symbol))
 
