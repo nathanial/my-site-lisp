@@ -83,7 +83,7 @@ If false, move point to the end of the inserted text."
 (defun slime-complete-symbol*-fancy-bit ()
   "Do fancy tricks after completing a symbol.
 \(Insert a space or close-paren based on arglist information.)"
-  (let ((arglist (slime-get-arglist (slime-symbol-name-at-point))))
+  (let ((arglist (slime-get-arglist (slime-symbol-at-point))))
     (when arglist
       (let ((args
              ;; Don't intern these symbols
@@ -127,8 +127,8 @@ current buffer."
             ;; If no matching keyword was found, do regular symbol
             ;; completion.
             ))))
-     ((and (> beg 2)
-           (string= (buffer-substring-no-properties (- beg 2) beg) "#\\"))
+     ((and (>= (length token) 2)
+           (string= (subseq token 0 2) "#\\"))
       ;; Character name completion
       (return-from slime-contextual-completions
         (slime-completions-for-character token))))
@@ -145,7 +145,12 @@ current buffer."
 					      ',arg-indices)))
 
 (defun slime-completions-for-character (prefix)
-  (slime-eval `(swank:completions-for-character ,prefix)))
+  (flet ((append-char-syntax (string) (concat "#\\" string)))
+    (let ((result (slime-eval `(swank:completions-for-character
+                                ,(subseq prefix 2)))))
+      (when (car result)
+        (list (mapcar 'append-char-syntax (car result))
+              (append-char-syntax (cadr result)))))))
 
 
 ;;; Complete form

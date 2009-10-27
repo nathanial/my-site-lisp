@@ -13,10 +13,10 @@
 (defpackage :swank-backend
   (:use :common-lisp)
   (:export #:sldb-condition
-           #:original-condition
            #:compiler-condition
+           #:original-condition
            #:message
-           #:short-message
+           #:source-context
            #:condition
            #:severity
            #:with-compilation-hooks
@@ -35,7 +35,7 @@
            ;; interrupt macro for the backend
            #:*pending-slime-interrupts*
            #:check-slime-interrupts
-           #:slime-interrupt-queued
+           #:*interrupt-queued-handler*
            ;; inspector related symbols
            #:emacs-inspect
            #:label-value-line
@@ -149,7 +149,7 @@ Backends implement these functions using DEFIMPLEMENTATION."
          (let ((f (or (get ',name 'implementation)
                       (get ',name 'default))))
            (cond (f (apply f ,@(args-as-list args)))
-                 (t (error "~S not implementated" ',name)))))
+                 (t (error "~S not implemented" ',name)))))
        (pushnew ',name *interface-functions*)
        ,(if (null default-body)
             `(pushnew ',name *unimplemented-interfaces*)
@@ -173,8 +173,9 @@ Backends implement these functions using DEFIMPLEMENTATION."
 (defun warn-unimplemented-interfaces ()
   "Warn the user about unimplemented backend features.
 The portable code calls this function at startup."
-  (warn "These Swank interfaces are unimplemented:~% ~A"
-        (sort (copy-list *unimplemented-interfaces*) #'string<)))
+  (let ((*print-pretty* t))
+    (warn "These Swank interfaces are unimplemented:~% ~:<~{~A~^ ~:_~}~:>"
+          (list (sort (copy-list *unimplemented-interfaces*) #'string<)))))
 
 (defun import-to-swank-mop (symbol-list)
   (dolist (sym symbol-list)
@@ -244,6 +245,12 @@ EXCEPT is a list of symbol names which should be ignored."
                      (cons `(,(first name) (,(reader (second name)) ,tmp)))
                      (t (error "Malformed syntax in WITH-STRUCT: ~A" name))))
           ,@body)))))
+
+(defun with-symbol (name package)
+  "Generate a form suitable for testing with #+."
+  (if (find-symbol (string name) (string package))
+      '(:and)
+      '(:or)))
 
 
 ;;;; TCP server
@@ -370,8 +377,8 @@ This is used to resolve filenames without directory component."
   (declare (ignore ignore))
   `(call-with-compilation-hooks (lambda () (progn ,@body))))
 
-(definterface swank-compile-string (string &key buffer position directory 
-                                           debug)
+(definterface swank-compile-string (string &key buffer position filename
+                                           policy)
   "Compile source from STRING.
 During compilation, compiler conditions must be trapped and
 resignalled as COMPILER-CONDITIONs.
@@ -381,19 +388,20 @@ If supplied, BUFFER and POSITION specify the source location in Emacs.
 Additionally, if POSITION is supplied, it must be added to source
 positions reported in compiler conditions.
 
-If DIRECTORY is specified it may be used by certain implementations to
+If FILENAME is specified it may be used by certain implementations to
 rebind *DEFAULT-PATHNAME-DEFAULTS* which may improve the recording of
 source information.
 
-If DEBUG is supplied, and non-NIL, it may be used by certain
+If POLICY is supplied, and non-NIL, it may be used by certain
 implementations to compile with a debug optimization quality of its
 value.
 
 Should return T on successfull compilation, NIL otherwise.
 ")
 
-(definterface swank-compile-file (pathname load-p external-format)
-   "Compile PATHNAME signalling COMPILE-CONDITIONs.
+(definterface swank-compile-file (input-file output-file load-p 
+                                             external-format)
+   "Compile INPUT-FILE signalling COMPILE-CONDITIONs.
 If LOAD-P is true, load the file after compilation.
 EXTERNAL-FORMAT is a value returned by find-external-format or
 :default.
@@ -402,7 +410,7 @@ Should return OUTPUT-TRUENAME, WARNINGS-P and FAILURE-p
 like `compile-file'")
 
 (deftype severity () 
-  '(member :error :read-error :warning :style-warning :note))
+  '(member :error :read-error :warning :style-warning :note :redefinition))
 
 ;; Base condition type for compiler errors, warnings and notes.
 (define-condition compiler-condition (condition)
@@ -420,9 +428,12 @@ like `compile-file'")
    (message :initarg :message
             :accessor message)
 
-   (short-message :initarg :short-message
-                  :initform nil
-                  :accessor short-message)
+   ;; Macro expansion history etc. which may be helpful in some cases
+   ;; but is often very verbose.
+   (source-context :initarg :source-context
+                   :type (or null string)
+                   :initform nil
+                   :accessor source-context)
 
    (references :initarg :references
                :initform nil
@@ -513,7 +524,8 @@ additional information on the specifiers defined in ANSI Common Lisp.")
       (ignorable      '(&rest vars))
       (special        '(&rest vars))
       (inline         '(&rest function-names))
-      (notinline      '(&rest function-name))
+      (notinline      '(&rest function-names))
+      (declaration    '(&rest names))
       (optimize       '(&any compilation-speed debug safety space speed))  
       (type           '(type-specifier &rest args))
       (ftype          '(type-specifier &rest function-names))
@@ -574,6 +586,10 @@ NIL."
 		   (values new-form expanded)))))
     (frob form env)))
 
+(definterface format-string-expand (control-string)
+  "Expand the format string CONTROL-STRING."
+  (macroexpand `(formatter ,control-string)))
+
 (definterface describe-symbol-for-emacs (symbol)
    "Return a property list describing SYMBOL.
 
@@ -623,7 +639,7 @@ For example, this is a reasonable place to compute a backtrace, switch
 to safe reader/printer settings, and so on.")
 
 (definterface call-with-debugger-hook (hook fun)
-  "Call FUN and use HOOK as debugger hook.
+  "Call FUN and use HOOK as debugger hook. HOOK can be NIL.
 
 HOOK should be called for both BREAK and INVOKE-DEBUGGER."
   (let ((*debugger-hook* hook))
@@ -668,7 +684,7 @@ Return T if `restart-frame' can safely be called on the frame."
   (declare (ignore frame))
   nil)
 
-(definterface frame-source-location-for-emacs (frame-number)
+(definterface frame-source-location (frame-number)
   "Return the source location for the frame associated to FRAME-NUMBER.")
 
 (definterface frame-catch-tags (frame-number)
@@ -813,31 +829,45 @@ respective DEFSTRUCT definition, and so on."
 
 (definterface who-calls (function-name)
   "Return the call sites of FUNCTION-NAME (a symbol).
-The results is a list ((DSPEC LOCATION) ...).")
+The results is a list ((DSPEC LOCATION) ...)."
+  (declare (ignore function-name))
+  :not-implemented)
 
 (definterface calls-who (function-name)
   "Return the call sites of FUNCTION-NAME (a symbol).
-The results is a list ((DSPEC LOCATION) ...).")
+The results is a list ((DSPEC LOCATION) ...)."
+  (declare (ignore function-name))
+  :not-implemented)
 
 (definterface who-references (variable-name)
   "Return the locations where VARIABLE-NAME (a symbol) is referenced.
-See WHO-CALLS for a description of the return value.")
+See WHO-CALLS for a description of the return value."
+  (declare (ignore variable-name))
+  :not-implemented)
 
 (definterface who-binds (variable-name)
   "Return the locations where VARIABLE-NAME (a symbol) is bound.
-See WHO-CALLS for a description of the return value.")
+See WHO-CALLS for a description of the return value."
+  (declare (ignore variable-name))
+  :not-implemented)
 
 (definterface who-sets (variable-name)
   "Return the locations where VARIABLE-NAME (a symbol) is set.
-See WHO-CALLS for a description of the return value.")
+See WHO-CALLS for a description of the return value."
+  (declare (ignore variable-name))
+  :not-implemented)
 
 (definterface who-macroexpands (macro-name)
   "Return the locations where MACRO-NAME (a symbol) is expanded.
-See WHO-CALLS for a description of the return value.")
+See WHO-CALLS for a description of the return value."
+  (declare (ignore macro-name))
+  :not-implemented)
 
 (definterface who-specializes (class-name)
   "Return the locations where CLASS-NAME (a symbol) is specialized.
-See WHO-CALLS for a description of the return value.")
+See WHO-CALLS for a description of the return value."
+  (declare (ignore class-name))
+  :not-implemented)
 
 ;;; Simpler variants.
 
@@ -994,6 +1024,11 @@ user. They do not have to be unique."
   (declare (ignore thread description))
   "")
 
+(definterface thread-attributes (thread)
+  "Return a plist of implementation-dependent attributes for THREAD"
+  (declare (ignore thread))
+  '())
+
 (definterface make-lock (&key name)
    "Make a lock for thread synchronization.
 Only one thread may hold the lock (via CALL-WITH-LOCK-HELD) at a time
@@ -1036,6 +1071,14 @@ but that thread may hold it more than once."
 (definterface receive-if (predicate &optional timeout)
   "Return the first message satisfiying PREDICATE.")
 
+(definterface set-default-initial-binding (var form)
+  "Initialize special variable VAR by default with FORM.
+
+Some implementations initialize certain variables in each newly
+created thread.  This function sets the form which is used to produce
+the initial value."
+  (set var (eval form)))
+
 ;; List of delayed interrupts.  
 ;; This should only have thread-local bindings, so no init form.
 (defvar *pending-slime-interrupts*)
@@ -1050,11 +1093,12 @@ Return a boolean indicating whether any interrupts was processed."
     (funcall (pop *pending-slime-interrupts*))
     t))
 
-(define-condition slime-interrupt-queued () ()
-  (:documentation 
-   "Non-serious condition signalled when an interrupt
-occurs while interrupt handling is disabled.
-Backends can use this to abort blocking operations."))
+(defvar *interrupt-queued-handler* nil
+  "Function to call on queued interrupts.
+Interrupts get queued when an interrupt occurs while interrupt
+handling is disabled.
+
+Backends can use this function to abort slow operations.")
 
 (definterface wait-for-input (streams &optional timeout)
   "Wait for input on a list of streams.  Return those that are ready.
@@ -1065,25 +1109,40 @@ If TIMEOUT is a number and no streams is ready after TIMEOUT seconds,
 return nil.
 
 Return :interrupt if an interrupt occurs while waiting."
-  (assert (= (length streams) 1))
-  (let ((stream (car streams)))
-    (case timeout
-      ((nil)
-       (cond ((check-slime-interrupts) :interrupt)
-             (t (peek-char nil stream nil nil) 
-                streams)))
-      ((t) 
-       (let ((c (read-char-no-hang stream nil nil)))
-         (cond (c 
-                (unread-char c stream) 
-                streams)
-               (t '()))))
-      (t 
-       (loop
-        (if (check-slime-interrupts) (return :interrupt))
-        (when (wait-for-input streams t) (return streams))
-        (sleep 0.1)
-        (when (<= (decf timeout 0.1) 0) (return nil)))))))
+  (assert (member timeout '(nil t)))
+  (cond #+(or)
+        ((null (cdr streams)) 
+         (wait-for-one-stream (car streams) timeout))
+        (t
+         (wait-for-streams streams timeout))))
+
+(defun wait-for-streams (streams timeout)
+  (loop
+   (when (check-slime-interrupts) (return :interrupt))
+   (let ((ready (remove-if-not #'stream-readable-p streams)))
+     (when ready (return ready)))
+   (when timeout (return nil))
+   (sleep 0.1)))
+
+;; Note: Usually we can't interrupt PEEK-CHAR cleanly.
+(defun wait-for-one-stream (stream timeout)
+  (ecase timeout
+    ((nil)
+     (cond ((check-slime-interrupts) :interrupt)
+           (t (peek-char nil stream nil nil) 
+              (list stream))))
+    ((t) 
+     (let ((c (read-char-no-hang stream nil nil)))
+       (cond (c 
+              (unread-char c stream) 
+              (list stream))
+             (t '()))))))
+
+(defun stream-readable-p (stream)
+  (let ((c (read-char-no-hang stream nil :eof)))
+    (cond ((not c) nil)
+          ((eq c :eof) t)
+          (t (unread-char c stream) t))))
 
 (definterface toggle-trace (spec)
   "Toggle tracing of the function(s) given with SPEC.

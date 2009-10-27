@@ -200,17 +200,26 @@ specific functions.")
    (when timeout (return nil))
    (multiple-value-bind (in out) (make-pipe)
      (let* ((f (constantly t))
-            (handlers (loop for s in (cons in streams)
+            (handlers (loop for s in (cons in (mapcar #'to-fd-stream streams))
                             collect (add-one-shot-handler s f))))
        (unwind-protect
-            (handler-bind ((slime-interrupt-queued 
-                            (lambda (c) c (write-char #\! out))))
+            (let ((*interrupt-queued-handler* (lambda () 
+                                                (write-char #\! out))))
               (when (check-slime-interrupts) (return :interrupt))
               (sys:serve-event))
          (mapc #'sys:remove-fd-handler handlers)
          (close in)
          (close out))))))
 
+(defun to-fd-stream (stream)
+  (etypecase stream
+    (sys:fd-stream stream)
+    (synonym-stream 
+     (to-fd-stream 
+      (symbol-value (synonym-stream-symbol stream))))
+    (two-way-stream 
+     (to-fd-stream (two-way-stream-input-stream stream)))))
+     
 (defun add-one-shot-handler (stream function)
   (let (handler)
     (setq handler (sys:add-fd-handler (sys:fd-stream-fd stream) :input
@@ -370,24 +379,26 @@ NIL if we aren't compiling from a buffer.")
                    (c::warning        #'handle-notification-condition))
       (funcall function))))
 
-(defimplementation swank-compile-file (filename load-p external-format)
+(defimplementation swank-compile-file (input-file output-file
+                                       load-p external-format)
   (declare (ignore external-format))
-  (clear-xref-info filename)
+  (clear-xref-info input-file)
   (with-compilation-hooks ()
     (let ((*buffer-name* nil)
           (ext:*ignore-extra-close-parentheses* nil))
       (multiple-value-bind (output-file warnings-p failure-p)
-          (compile-file filename)
+          (compile-file input-file :output-file output-file)
         (values output-file warnings-p
                 (or failure-p
                     (when load-p
                       ;; Cache the latest source file for definition-finding.
-                      (source-cache-get filename (file-write-date filename))
+                      (source-cache-get input-file 
+                                        (file-write-date input-file))
                       (not (load output-file)))))))))
 
-(defimplementation swank-compile-string (string &key buffer position directory
-                                                debug)
-  (declare (ignore directory debug))
+(defimplementation swank-compile-string (string &key buffer position filename
+                                         policy)
+  (declare (ignore filename policy))
   (with-compilation-hooks ()
     (let ((*buffer-name* buffer)
           (*buffer-start-position* position)
@@ -419,8 +430,8 @@ NIL if we aren't compiling from a buffer.")
            'compiler-condition
            :original-condition condition
            :severity (severity-for-emacs condition)
-           :short-message (brief-compiler-message-for-emacs condition)
-           :message (long-compiler-message-for-emacs condition context)
+           :message (compiler-condition-message condition)
+           :source-context (compiler-error-context context)
            :location (if (read-error-p condition)
                          (read-error-location condition)
                          (compiler-note-location context)))))
@@ -436,22 +447,24 @@ NIL if we aren't compiling from a buffer.")
 (defun read-error-p (condition)
   (eq (type-of condition) 'c::compiler-read-error))
 
-(defun brief-compiler-message-for-emacs (condition)
+(defun compiler-condition-message (condition)
   "Briefly describe a compiler error for Emacs.
 When Emacs presents the message it already has the source popped up
 and the source form highlighted. This makes much of the information in
 the error-context redundant."
   (princ-to-string condition))
 
-(defun long-compiler-message-for-emacs (condition error-context)
-  "Describe a compiler error for Emacs including context information."
+(defun compiler-error-context (error-context)
+  "Describe context information for Emacs."
   (declare (type (or c::compiler-error-context null) error-context))
   (multiple-value-bind (enclosing source)
       (if error-context
           (values (c::compiler-error-context-enclosing-source error-context)
                   (c::compiler-error-context-source error-context)))
-    (format nil "~@[--> ~{~<~%--> ~1:;~A~> ~}~%~]~@[~{==>~%~A~^~%~}~]~A"
-            enclosing source condition)))
+    (if (or enclosing source)
+        (format nil "~@[--> ~{~<~%--> ~1:;~A ~>~}~%~]~
+                     ~@[==>~{~&~A~}~]"
+                enclosing source))))
 
 (defun read-error-location (condition)
   (let* ((finfo (car (c::source-info-current-file c::*source-info*)))
@@ -470,16 +483,22 @@ the error-context redundant."
 Return a `location' record, or (:error REASON) on failure."
   (if (null context)
       (note-error-location)
-      (let ((file (c::compiler-error-context-file-name context))
-            (source (c::compiler-error-context-original-source context))
-            (path
-             (reverse (c::compiler-error-context-original-source-path context))))
-        (or (locate-compiler-note file source path)
+      (with-struct (c::compiler-error-context- file-name 
+                                               original-source
+                                               original-source-path) context
+        (or (locate-compiler-note file-name original-source 
+                                  (reverse original-source-path))
             (note-error-location)))))
 
 (defun note-error-location ()
   "Pseudo-location for notes that can't be located."
-  (list :error "No error location available."))
+  (cond (*compile-file-truename*
+         (make-location (list :file (unix-truename *compile-file-truename*))
+                        (list :eof)))
+        (*buffer-name*
+         (make-location (list :buffer *buffer-name*)
+                        (list :position *buffer-start-position*)))
+        (t (list :error "No error location available."))))
 
 (defun locate-compiler-note (file source source-path)
   (cond ((and (eq file :stream) *buffer-name*)
@@ -1518,7 +1537,7 @@ A utility for debugging DEBUG-FUNCTION-ARGLIST."
       (error (e)
         (ignore-errors (princ e stream))))))
 
-(defimplementation frame-source-location-for-emacs (index)
+(defimplementation frame-source-location (index)
   (code-location-source-location (di:frame-code-location (nth-frame index))))
 
 (defimplementation eval-in-frame (form index)
@@ -1526,27 +1545,30 @@ A utility for debugging DEBUG-FUNCTION-ARGLIST."
 
 (defun frame-debug-vars (frame)
   "Return a vector of debug-variables in frame."
-  (di::debug-function-debug-variables (di:frame-debug-function frame)))
+  (let ((loc (di:frame-code-location frame)))
+    (remove-if
+     (lambda (v)
+       (not (eq (di:debug-variable-validity v loc) :valid)))
+     (di::debug-function-debug-variables (di:frame-debug-function frame)))))
 
-(defun debug-var-value (var frame location)
-  (let ((validity (di:debug-variable-validity var location)))
+(defun debug-var-value (var frame)
+  (let* ((loc (di:frame-code-location frame))
+         (validity (di:debug-variable-validity var loc)))
     (ecase validity
       (:valid (di:debug-variable-value var frame))
       ((:invalid :unknown) (make-symbol (string validity))))))
 
 (defimplementation frame-locals (index)
-  (let* ((frame (nth-frame index))
-	 (loc (di:frame-code-location frame))
-	 (vars (frame-debug-vars frame)))
-    (loop for v across vars collect
-          (list :name (di:debug-variable-symbol v)
-                :id (di:debug-variable-id v)
-                :value (debug-var-value v frame loc)))))
+  (let ((frame (nth-frame index)))
+    (loop for v across (frame-debug-vars frame)
+          collect (list :name (di:debug-variable-symbol v)
+                        :id (di:debug-variable-id v)
+                        :value (debug-var-value v frame)))))
 
 (defimplementation frame-var-value (frame var)
   (let* ((frame (nth-frame frame))
          (dvar (aref (frame-debug-vars frame) var)))
-    (debug-var-value dvar frame (di:frame-code-location frame))))
+    (debug-var-value dvar frame)))
 
 (defimplementation frame-catch-tags (index)
   (mapcar #'car (di:frame-catches (nth-frame index))))

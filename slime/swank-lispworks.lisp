@@ -15,12 +15,32 @@
   (import-from :stream *gray-stream-symbols* :swank-backend))
 
 (import-swank-mop-symbols :clos '(:slot-definition-documentation
+                                  :slot-boundp-using-class
+                                  :slot-value-using-class
+                                  :slot-makunbound-using-class
                                   :eql-specializer
                                   :eql-specializer-object
                                   :compute-applicable-methods-using-classes))
 
 (defun swank-mop:slot-definition-documentation (slot)
   (documentation slot t))
+
+(defun swank-mop:slot-boundp-using-class (class object slotd)
+  (clos:slot-boundp-using-class class object
+                                (clos:slot-definition-name slotd)))
+
+(defun swank-mop:slot-value-using-class (class object slotd)
+  (clos:slot-value-using-class class object
+                               (clos:slot-definition-name slotd)))
+
+(defun (setf swank-mop:slot-value-using-class) (value class object slotd)
+  (setf (clos:slot-value-using-class class object
+                                     (clos:slot-definition-name slotd))
+        value))
+
+(defun swank-mop:slot-makunbound-using-class (class object slotd)
+  (clos:slot-makunbound-using-class class object
+                                    (clos:slot-definition-name slotd)))
 
 (defun swank-mop:compute-applicable-methods-using-classes (gf classes)
   (clos::compute-applicable-methods-from-classes gf classes))
@@ -102,12 +122,6 @@
            (apply (read-from-string "FLEXI-STREAMS:MAKE-EXTERNAL-FORMAT")
                   external-format)))
 
-(defun set-sigint-handler ()
-  ;; Set SIGINT handler on Swank request handler thread.
-  #-win32
-  (sys::set-signal-handler +sigint+ 
-                           (make-sigint-handler mp:*current-process*)))
-
 ;;; Coding Systems
 
 (defun valid-external-format-p (external-format)
@@ -141,6 +155,20 @@
     (declare (ignore args))
     (mp:process-interrupt process #'sigint-handler)))
 
+(defun set-sigint-handler ()
+  ;; Set SIGINT handler on Swank request handler thread.
+  #-win32
+  (sys::set-signal-handler +sigint+ 
+                           (make-sigint-handler mp:*current-process*)))
+
+#-win32 
+(defimplementation install-sigint-handler (handler)
+  (sys::set-signal-handler +sigint+
+                           (let ((self mp:*current-process*))
+                             (lambda (&rest args)
+                               (declare (ignore args))
+                               (mp:process-interrupt self handler)))))
+
 (defimplementation call-without-interrupts (fn)
   (lw:without-interrupts (funcall fn)))
   
@@ -156,13 +184,34 @@
 
 ;;;; Documentation
 
+(defun map-list (function list)
+  "Map over proper and not proper lists."
+  (loop for (car . cdr) on list
+        collect (funcall function car) into result
+        when (null cdr) return result
+        when (atom cdr) return (nconc result (funcall function cdr))))
+
+(defun replace-strings-with-symbols (tree)
+  (map-list
+   (lambda (x)
+     (typecase x
+       (list
+        (replace-strings-with-symbols x))
+       (symbol
+        x)
+       (string
+        (intern x))
+       (t
+        (intern (write-to-string x)))))
+   tree))
+               
 (defimplementation arglist (symbol-or-function)
   (let ((arglist (lw:function-lambda-list symbol-or-function)))
     (etypecase arglist
       ((member :dont-know) 
        :not-available)
       (list
-       arglist))))
+       (replace-strings-with-symbols arglist)))))
 
 (defimplementation function-name (function)
   (nth-value 2 (function-lambda-expression function)))
@@ -355,7 +404,7 @@ Return NIL if the symbol is unbound."
       (declare (ignore _n _s _l))
       value)))
 
-(defimplementation frame-source-location-for-emacs (frame)
+(defimplementation frame-source-location (frame)
   (let ((frame (nth-frame frame))
         (callee (if (plusp frame) (nth-frame (1- frame)))))
     (if (dbg::call-frame-p frame)
@@ -418,9 +467,12 @@ Return NIL if the symbol is unbound."
            (signal-undefined-functions compiler::*unknown-functions* 
                                        ,location))))))
 
-(defimplementation swank-compile-file (filename load-p external-format)
-  (with-swank-compilation-unit (filename)
-    (compile-file filename :load load-p 
+(defimplementation swank-compile-file (input-file output-file
+                                       load-p external-format)
+  (with-swank-compilation-unit (input-file)
+    (compile-file input-file 
+                  :output-file output-file
+                  :load load-p 
                   :external-format external-format)))
 
 (defvar *within-call-with-compilation-hooks* nil
@@ -620,9 +672,9 @@ function names like \(SETF GET)."
 		nil)))
 	   htab))
 
-(defimplementation swank-compile-string (string &key buffer position directory
-                                                debug)
-  (declare (ignore directory debug))
+(defimplementation swank-compile-string (string &key buffer position filename
+                                         policy)
+  (declare (ignore filename policy))
   (assert buffer)
   (assert position)
   (let* ((location (list :emacs-buffer buffer position string))
@@ -745,11 +797,7 @@ function names like \(SETF GET)."
         (t (funcall continuation))))
 
 (defimplementation spawn (fn &key name)
-  (let ((mp:*process-initial-bindings* 
-         (remove (find-package :cl) 
-                 mp:*process-initial-bindings*
-                 :key (lambda (x) (symbol-package (car x))))))
-    (mp:process-run-function name () fn)))
+  (mp:process-run-function name () fn))
 
 (defvar *id-lock* (mp:make-lock))
 (defvar *thread-id-counter* 0)
@@ -819,7 +867,7 @@ function names like \(SETF GET)."
            (return (car tail)))))
      (when (eq timeout t) (return (values nil t)))
      (mp:process-wait-with-timeout 
-      "receive-if" 0.2 (lambda () (some test (mailbox.queue mbox)))))))
+      "receive-if" 0.3 (lambda () (some test (mailbox.queue mbox)))))))
 
 (defimplementation send (thread message)
   (let ((mbox (mailbox thread)))
@@ -827,14 +875,18 @@ function names like \(SETF GET)."
       (setf (mailbox.queue mbox)
             (nconc (mailbox.queue mbox) (list message))))))
 
+(defimplementation set-default-initial-binding (var form)
+  (setq mp:*process-initial-bindings* 
+        (acons var `(eval (quote ,form))
+               mp:*process-initial-bindings* )))
+
+(defimplementation thread-attributes (thread)
+  (list :priority (mp:process-priority thread)
+        :idle (mp:process-idle-time thread)))
+
 ;;; Some intergration with the lispworks environment
 
 (defun swank-sym (name) (find-symbol (string name) :swank))
-
-(defimplementation emacs-connected ()
-  (when (eq (eval (swank-sym :*communication-style*))
-            nil)
-    (set-sigint-handler)))
       
 
 ;;;; Weak hashtables

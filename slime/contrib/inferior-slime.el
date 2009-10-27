@@ -69,20 +69,59 @@ A prefix argument disables this behaviour."
       (insert ")")))
   (comint-send-input))
 
+(defun inferior-slime-change-directory (directory)
+  "Set default-directory in the *inferior-lisp* buffer to DIRECTORY."
+  (let* ((proc (slime-process))
+	 (buffer (and proc (process-buffer proc))))
+    (when buffer 
+      (with-current-buffer buffer
+	(cd-absolute directory)))))
+
 (defun inferior-slime-init-keymap ()
   (let ((map inferior-slime-mode-map))
-    (define-key map [return] 'inferior-slime-return)
-    (define-key map [(control return)] 'inferior-slime-closing-return)
-    (define-key map [(meta control ?m)] 'inferior-slime-closing-return)
-    (define-key map "\C-c\C-d" slime-doc-map)
-    (define-key map "\C-c\C-w" slime-who-map)
-    (loop for (key command . keys) in slime-keys do
-	  (destructuring-bind (&key prefixed inferior &allow-other-keys) keys
-	    (when prefixed
-	      (setq key (concat slime-prefix-key key)))
-	    (when inferior
-	      (define-key map key command))))))
+    (set-keymap-parent map slime-parent-map)
+    (slime-define-keys map
+      ([return]			'inferior-slime-return)
+      ([(control return)]	'inferior-slime-closing-return)
+      ([(meta control ?m)]	'inferior-slime-closing-return)
+      ("\t"			'slime-indent-and-complete-symbol)
+      (" "			'slime-space))))
 
 (inferior-slime-init-keymap)
+
+(defun inferior-slime-hook-function ()
+  (inferior-slime-mode 1))
+
+(defun inferior-slime-switch-to-repl-buffer ()
+  (switch-to-buffer (process-buffer (slime-inferior-process))))
+
+(defun inferior-slime-show-transcript (string)
+  (remove-hook 'comint-output-filter-functions
+	       'inferior-slime-show-transcript t)
+  (display-buffer (process-buffer (slime-inferior-process)) t))
+
+(defun inferior-slime-start-transcript ()
+  (with-current-buffer (process-buffer (slime-inferior-process))
+    (add-hook 'comint-output-filter-functions 
+	      'inferior-slime-show-transcript
+	      nil t)))
+
+(defun inferior-slime-stop-transcript ()
+  (with-current-buffer (process-buffer (slime-inferior-process))
+    (run-with-timer 0.2 nil 
+		    (lambda (buffer) 
+		      (with-current-buffer buffer
+			(remove-hook 'comint-output-filter-functions
+				     'inferior-slime-show-transcript t)))
+		    (current-buffer))))
+
+(defun inferior-slime-init ()
+  (add-hook 'slime-inferior-process-start-hook 'inferior-slime-hook-function)
+  (add-hook 'slime-change-directory-hooks 'inferior-slime-change-directory)
+  (add-hook 'slime-transcript-start-hook 'inferior-slime-start-transcript)
+  (add-hook 'slime-transcript-stop-hook 'inferior-slime-stop-transcript)
+  (def-slime-selector-method ?r
+    "SLIME Read-Eval-Print-Loop."
+    (inferior-slime-switch-to-repl-buffer)))
 
 (provide 'inferior-slime)

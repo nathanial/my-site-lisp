@@ -10,24 +10,12 @@
 (defun nml-add-to-load-path (directory)
   (add-to-list 'load-path (concat nathans-site-lisp directory)))
 
-(defun nml-load-clojure ()
-  (nml-add-to-load-path "clojure-mode")
-  (autoload 'clojure-mode "clojure-mode" "A major mode for Clojure" t)
-  (add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
-   (defun lisp-enable-paredit-hook () (paredit-mode 1))
-   (add-hook 'clojure-mode-hook 'lisp-enable-paredit-hook))
-
 (defun nml-load-haskell ()
   (nml-add-to-load-path "haskell-mode")
   (load "haskell-mode/haskell-site-file")
   (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
   (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
   (set-variable 'haskell-program-name "ghci -fglasgow-exts"))
-
-(defun nml-load-slime ()
-  (require 'slime)
-  (setq inferior-lisp-program "/usr/bin/sbcl")
-  (slime-setup))
 
 (defun nml-load-ruby ()
   (require 'ruby-mode)
@@ -68,9 +56,21 @@
 	    'append 'local))
 
 (defun nml-load-nxml ()
+  (load "nxhtml/autostart.el")
   (add-hook 'nxhtml-mode-hook 'auto-reload-firefox-on-after-save-hook)
   (add-hook 'javascript-mode-hook 'auto-reload-firefox-on-after-save-hook)
-  (add-hook 'css-mode-hook 'auto-reload-firefox-on-after-save-hook))
+  (add-hook 'css-mode-hook 'auto-reload-firefox-on-after-save-hook)
+  (global-unset-key (kbd "C-o"))
+  (global-set-key (kbd "C-o C-h") 'hs-hide-block)
+  (global-set-key (kbd "C-o C-s") 'hs-show-block)
+  (global-set-key (kbd "C-o C-l") 'hs-hide-level)
+  (global-set-key (kbd "C-o C-c") 'hs-toggle-hiding)
+  (global-set-key (kbd "C-o C-a") 'hs-show-all)
+  (global-set-key (kbd "C-o C-o") 'hs-hide-all)
+  
+  (add-hook 'nxhtml-mode-hook 
+	    '(lambda ()
+	       (outline-minor-mode -1))))
 
 (defun nml-load-ioke ()
   (require 'ioke-mode))
@@ -128,6 +128,7 @@
   (add-to-list 'desktop-globals-to-save 'file-name-history))
 
 (defun nml-load-custom ()
+  (setq confirm-nonexistent-file-or-buffer nil)
   (put 'narrow-to-region 'disabled nil)
   ;;ui
   (setq inhibit-startup-screen t)
@@ -151,6 +152,102 @@
   ;;lisp
   (global-set-key "\M-?" 'lisp-complete-symbol))
 
+(defun my-js2-indent-function ()
+  (interactive)
+  (save-restriction
+    (widen)
+    (let* ((inhibit-point-motion-hooks t)
+	   (parse-status (save-excursion (syntax-ppss (point-at-bol))))
+	   (offset (- (current-column) (current-indentation)))
+	   (indentation (espresso--proper-indentation parse-status))
+	   node)
+      (save-excursion
+	(back-to-indentation)
+	(if (looking-at "case\\s-")
+	    (setq indentation (+ indentation (/ espresso-indent-level 2))))
+	
+	(setq node (js2-node-at-point))
+	(when (and node
+		   (= js2-NAME (js2-node-type node))
+		   (= js2-VAR (js2-node-type (js2-node-parent node))))
+	  (setq indentation (+ 4 indentation))))
+      (indent-line-to indentation)
+      (when (> offset 0) (forward-char offset)))))
+
+(defun my-indent-sexp ()
+  (interactive)
+  (save-restriction
+    (save-excursion
+      (widen)
+      (let* ((inhibit-point-motion-hooks t)
+	     (parse-status (syntax-ppss (point)))
+	     (beg (nth 1 parse-status))
+	     (end-marker (make-marker))
+	     (end (progn (goto-char beg) (forward-list) (point)))
+	     (ovl (make-overlay beg end)))
+	(set-marker end-marker end)
+	(overlay-put ovl 'face 'highlight)
+	(goto-char beg)
+	(while (< (point) (mark-position end-marker))
+	  (beginning-of-line)
+	  (unless (looking-at "\\s-*$")
+	    (indent-according-to-mode))
+	  (forward-line))
+	(run-with-timer 0.5 nil '(lambda (ovl)
+				   (delete-overlay ovl)) ovl)))))
+
+(defun my-js2-mode-hook ()
+  (require 'espresso)
+  (setq espresso-indent-level 4
+	indent-tabs-mode nil
+	c-basic-offset 4)
+  (c-toggle-auto-state 0)
+  (c-toggle-hungry-state 1)
+  (set (make-local-variable 'indent-line-function) 'my-js2-indent-function)
+  (define-key js2-mode-map [(meta control |)] 'cperl-lineup)
+  (define-key js2-mode-map [(meta control \;)]
+    '(lambda ()
+       (interactive)
+       (insert "/* -----[ ")
+       (save-excursion 
+	 (insert " ]----- */"))))
+  (define-key js2-mode-map [(return)] 'newline-and-indent)
+  (define-key js2-mode-map [(backspace)] 'c-electric-backspace)
+  (define-key js2-mode-map [(control d)] 'c-electric-delete-forward)
+  (define-key js2-mode-map [(control meta q)] 'my-indent-sexp)
+  (if (featurep 'js2-highlight-vars)
+      (js2-highlight-vars-mode))
+  (message "My JS2 hook"))
+
+
 (defun nml-load-js2 ()
-  (autoload 'js2-mode "js2" nil t)
-  (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode)))
+  (autoload 'js2-mode "js2-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+  (autoload 'espress-mode "espresso")
+  (add-hook 'js2-mode-hook 'my-js2-mode-hook))
+
+
+(defun nml-load-clojure-mode ()
+  (require 'clojure-mode)
+  
+  (nml-add-to-load-path "swank-clojure")
+  (require 'swank-clojure-autoload)
+  (swank-clojure-config
+   (setq swank-clojure-jar-path "/opt/local/share/java/clojure/lib/clojure.jar")
+   (setq swank-clojure-extra-classpaths 
+	 (list "/Users/nathan/Sources/swank-clojure/swank-clojure.jar")))
+  
+  (eval-after-load "slime"
+    '(progn (slime-setup '(slime-repl))))
+  
+  
+  (nml-add-to-load-path "slime")  ; your SLIME directory
+  (require 'slime)
+  (slime-setup))
+
+(defun nml-load-qt-mode ()
+  (require 'cc-mode)
+  (setq c-C++-access-key "\\<\\(slots\\|signals\\|private\\|protected\\|public\\)\\>[ \t]*[(slots\\|signals)]*[ \t]*:")
+  (font-lock-add-keywords 'c++-mode '(("\\<\\(Q_OBJECT\\|public slots\\|public signals\\|private slots\\|private signals\\|protected slots\\|protected signals\\)\\>" . font-lock-constant-face))))
+
+
