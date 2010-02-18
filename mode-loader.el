@@ -47,19 +47,8 @@
     (set-face-background 'cperl-array-face "wheat")
     (set-face-background 'cperl-hash-face "wheat")))
 
-(defun auto-reload-firefox-on-after-save-hook ()
-  (add-hook 'after-save-hook
-	    '(lambda ()
-	       (interactive)
-	       (comint-send-string (inferior-moz-process)
-				   "setTimeout(BrowserReload(), \"1000\");"))
-	    'append 'local))
-
 (defun nml-load-nxml ()
   (load "nxhtml/autostart.el")
-  (add-hook 'nxhtml-mode-hook 'auto-reload-firefox-on-after-save-hook)
-  (add-hook 'javascript-mode-hook 'auto-reload-firefox-on-after-save-hook)
-  (add-hook 'css-mode-hook 'auto-reload-firefox-on-after-save-hook)
   (global-unset-key (kbd "C-o"))
   (global-set-key (kbd "C-o C-h") 'hs-hide-block)
   (global-set-key (kbd "C-o C-s") 'hs-show-block)
