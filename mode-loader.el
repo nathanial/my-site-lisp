@@ -240,3 +240,50 @@
   (font-lock-add-keywords 'c++-mode '(("\\<\\(Q_OBJECT\\|public slots\\|public signals\\|private slots\\|private signals\\|protected slots\\|protected signals\\)\\>" . font-lock-constant-face))))
 
 
+(defun nml-load-everything ()
+  (set-default-font "Monospace-7")
+
+  (nml-load-custom)
+  (nml-load-ruby)
+  (nml-load-yasnippet)
+
+  (nml-load-nxml)
+  (nml-load-js2)
+
+  (shell)
+  (put 'downcase-region 'disabled nil)
+
+  (put 'upcase-region 'disabled nil)
+
+  (defun my-python-def-count ()
+    (let ((python-def-count 0))
+      (setq python-def-count 0)
+      (save-excursion
+	(while (search-forward "def" nil t nil)
+	  (setq python-def-count (+ python-def-count 1))))
+      python-def-count))
+
+  (defun my-cortex-autocomplete ()
+    (interactive)
+    (save-excursion
+      (let* ((word-start (progn (backward-word) (point)))
+	     (word-end (progn (forward-word) (point)))
+	     (word (buffer-substring-no-properties word-start word-end)))
+	(when (string-equal word "cv")
+	  (delete-region word-start word-end)
+	  (insert-string "CortexVariant")))))
+
+  (add-to-list 'load-path "~/Projects/my-site-lisp/jump")
+  (add-to-list 'load-path "~/Projects/my-site-lisp/rinari")
+  (add-to-list 'load-path "~/Projects/my-site-lisp/yaml-mode")
+  (require 'jump)
+  (require 'rinari)
+  (require 'yaml-mode)
+  (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
+
+  (ido-mode t)
+  (setq ido-enable-flex-matching t)
+
+  (add-hook 'c-mode-hook 
+	    '(lambda ()
+	       (linum-mode))))
