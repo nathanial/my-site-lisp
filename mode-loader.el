@@ -241,7 +241,6 @@
 
 
 (defun nml-load-everything ()
-  (set-default-font "Monospace-7")
 
   (nml-load-custom)
   (nml-load-ruby)
