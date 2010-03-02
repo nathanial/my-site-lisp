@@ -222,7 +222,7 @@
   (nml-add-to-load-path "swank-clojure")
   (require 'swank-clojure-autoload)
   (swank-clojure-config
-   (setq swank-clojure-jar-path "/opt/local/share/java/clojure/lib/clojure.jar")
+   (setq swank-clojure-jar-path "/Users/nathan/Runtimes/clojure-1.1.0/clojure-1.1.0.jar")
    (setq swank-clojure-extra-classpaths 
 	 (list "/Users/nathan/Sources/swank-clojure/swank-clojure.jar")))
   
@@ -241,7 +241,6 @@
 
 
 (defun nml-load-everything ()
-
   (nml-load-custom)
   (nml-load-ruby)
   (nml-load-yasnippet)

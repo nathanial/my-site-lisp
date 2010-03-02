@@ -1,16 +1,16 @@
 ;;; -*-Emacs-Lisp-*-
 ;;; scala-mode-ui.el - Menu entries and keyboard shortcuts for scala mode
 
-;; Copyright (C) 2008 Scala Dev Team at EPFL
+;; Copyright (C) 2009 Scala Dev Team at EPFL
 ;; Authors: See AUTHORS file
 ;; Keywords: scala languages oop
-;; $Id: scala-mode-ui.el 16886 2009-01-09 16:58:22Z cunei $
+;; $Id: scala-mode-ui.el 20031 2009-12-07 11:59:42Z cunei $
 
 ;;; License
 
 ;; SCALA LICENSE
 ;;  
-;; Copyright (c) 2002-2009 EPFL, Lausanne, unless otherwise specified.
+;; Copyright (c) 2002-2010 EPFL, Lausanne, unless otherwise specified.
 ;; All rights reserved.
 ;;  
 ;; This software was developed by the Programming Methods Laboratory of the
@@ -50,13 +50,15 @@
 (provide 'scala-mode-ui)
 
 (require 'easymenu)
+(require 'scala-mode-lib)
 
 (eval-when-compile
   (require 'scala-mode-inf))
 
-(defcustom scala-mode-ui:prefix-key "\C-c"
-  "Key prefix for scala mode."
-  :group 'scala)
+(eval-and-compile
+  (defcustom scala-mode-ui:prefix-key "\C-c"
+    "Key prefix for scala mode."
+    :group 'scala))
 
 (defmacro scala-mode-ui:key (key)
   "Simple macro for appending 'scala-mode-prefix-key' to key commands"

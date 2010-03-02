@@ -3,8 +3,8 @@
 ;; This file should be updated by `nxhtmlmaint-get-file-autoloads',
 ;; `nxhtmlmaint-get-dir-autoloads' or `nxhtmlmaint-get-all-autoloads'.
 ;;;### (autoloads (html-pagetoc-rebuild-toc html-pagetoc-insert-toc)
-;;;;;;  "../nxhtml/html-pagetoc" "nxhtml/html-pagetoc.el" (19175
-;;;;;;  10527))
+;;;;;;  "../nxhtml/html-pagetoc" "nxhtml/html-pagetoc.el" (19326
+;;;;;;  4278))
 ;;; Generated autoloads from nxhtml/html-pagetoc.el
 
 (autoload 'html-pagetoc-insert-toc "../nxhtml/html-pagetoc" "\
@@ -26,7 +26,7 @@ Update the table of contents inserted by `html-pagetoc-insert-toc'.
 
 ;;;### (autoloads (html-site-query-replace html-site-rgrep html-site-find-file
 ;;;;;;  html-site-dired-current html-site-set-site html-site-buffer-or-dired-file-name)
-;;;;;;  "../nxhtml/html-site" "nxhtml/html-site.el" (19175 10527))
+;;;;;;  "../nxhtml/html-site" "nxhtml/html-site.el" (19326 4278))
 ;;; Generated autoloads from nxhtml/html-site.el
 
 (autoload 'html-site-buffer-or-dired-file-name "../nxhtml/html-site" "\
@@ -62,8 +62,8 @@ Query replace in current site's files.
 
 ;;;***
 
-;;;### (autoloads nil "../nxhtml/html-toc" "nxhtml/html-toc.el" (19175
-;;;;;;  10527))
+;;;### (autoloads nil "../nxhtml/html-toc" "nxhtml/html-toc.el" (19326
+;;;;;;  4278))
 ;;; Generated autoloads from nxhtml/html-toc.el
 
 (defconst html-toc-menu-map (let ((map (make-sparse-keymap))) (define-key map [html-toc-browse-frames-file] (list 'menu-item "Browse Frames File" 'html-toc-browse-frames-file)) (define-key map [html-toc-write-frames-file] (list 'menu-item "Write Frames File" 'html-toc-write-frames-file)) (define-key map [html-toc-write-toc-file] (list 'menu-item "Write TOC File for Frames" 'html-toc-write-toc-file)) (define-key map [html-toc-sep1] (list 'menu-item "--")) (define-key map [html-toc-edit-pages-file] (list 'menu-item "Edit List of Pages for TOC" 'html-site-edit-pages-file)) (define-key map [html-toc-create-pages-file] (list 'menu-item "Write List of Pages for TOC" 'html-toc-create-pages-file)) map))
@@ -73,7 +73,7 @@ Query replace in current site's files.
 ;;;### (autoloads (html-upl-ediff-file html-upl-edit-remote-file-with-toc
 ;;;;;;  html-upl-edit-remote-file html-upl-upload-file html-upl-remote-dired
 ;;;;;;  html-upl-upload-site html-upl-upload-site-with-toc) "../nxhtml/html-upl"
-;;;;;;  "nxhtml/html-upl.el" (19175 10527))
+;;;;;;  "nxhtml/html-upl.el" (19326 4278))
 ;;; Generated autoloads from nxhtml/html-upl.el
 
 (autoload 'html-upl-upload-site-with-toc "../nxhtml/html-upl" "\
@@ -116,7 +116,7 @@ FILENAME could be either the remote or the local file.
 ;;;***
 
 ;;;### (autoloads (inlimg-toggle-img-display inlimg-mode) "../nxhtml/inlimg"
-;;;;;;  "nxhtml/inlimg.el" (19175 10527))
+;;;;;;  "nxhtml/inlimg.el" (19326 4278))
 ;;; Generated autoloads from nxhtml/inlimg.el
 
 (autoload 'inlimg-mode "../nxhtml/inlimg" "\
@@ -138,7 +138,7 @@ See also the command `inlimg-mode'.
 ;;;***
 
 ;;;### (autoloads (nxhtml-customize) "../nxhtml/nxhtml" "nxhtml/nxhtml.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from nxhtml/nxhtml.el
 
 (autoload 'nxhtml-customize "../nxhtml/nxhtml" "\
@@ -149,7 +149,7 @@ Customize nXhtml.
 ;;;***
 
 ;;;### (autoloads (nxhtml-report-bug) "../nxhtml/nxhtml-bug" "nxhtml/nxhtml-bug.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from nxhtml/nxhtml-bug.el
 
 (autoload 'nxhtml-report-bug "../nxhtml/nxhtml-bug" "\
@@ -161,7 +161,7 @@ Report a bug in nXhtml.
 
 ;;;### (autoloads (nxhtml-overview nxhtml-global-minor-mode nxhtml-browse-region
 ;;;;;;  nxhtml-browse-file nxhtml-edit-with-gimp) "../nxhtml/nxhtml-menu"
-;;;;;;  "nxhtml/nxhtml-menu.el" (19175 10527))
+;;;;;;  "nxhtml/nxhtml-menu.el" (19326 4278))
 ;;; Generated autoloads from nxhtml/nxhtml-menu.el
 
 (autoload 'nxhtml-edit-with-gimp "../nxhtml/nxhtml-menu" "\
@@ -205,7 +205,7 @@ Show a HTML page with an overview of nXhtml.
 
 ;;;### (autoloads (nxhtml-validation-header-mode nxhtml-short-tag-help
 ;;;;;;  nxhtml-mode) "../nxhtml/nxhtml-mode" "nxhtml/nxhtml-mode.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from nxhtml/nxhtml-mode.el
 
 (when (fboundp 'nxml-mode)
@@ -339,7 +339,7 @@ This mode may be turned on automatically in two ways:
 ;;;;;;  eruby-nxhtml-mumamo-mode jsp-nxhtml-mumamo-mode smarty-nxhtml-mumamo-mode
 ;;;;;;  mjt-nxhtml-mumamo-mode genshi-nxhtml-mumamo-mode django-nxhtml-mumamo-mode
 ;;;;;;  embperl-nxhtml-mumamo-mode nxhtml-mumamo-mode) "../nxhtml/nxhtml-mumamo"
-;;;;;;  "nxhtml/nxhtml-mumamo.el" (19175 10527))
+;;;;;;  "nxhtml/nxhtml-mumamo.el" (19326 4278))
 ;;; Generated autoloads from nxhtml/nxhtml-mumamo.el
 
 (autoload 'nxhtml-mumamo-mode "../nxhtml/nxhtml-mumamo" "\
@@ -387,7 +387,7 @@ This also covers inlined style and javascript." t)
 ;;;***
 
 ;;;### (autoloads (nxml-where-global-mode nxml-where-mode) "../nxhtml/nxml-where"
-;;;;;;  "nxhtml/nxml-where.el" (19175 10527))
+;;;;;;  "nxhtml/nxml-where.el" (19326 4278))
 ;;; Generated autoloads from nxhtml/nxml-where.el
 
 (autoload 'nxml-where-mode "../nxhtml/nxml-where" "\
@@ -415,7 +415,7 @@ See `nxml-where-mode' for more information on Nxml-Where mode.
 ;;;***
 
 ;;;### (autoloads (rngalt-set-validation-header) "../nxhtml/rngalt"
-;;;;;;  "nxhtml/rngalt.el" (19175 10527))
+;;;;;;  "nxhtml/rngalt.el" (19326 4278))
 ;;; Generated autoloads from nxhtml/rngalt.el
 
 (autoload 'rngalt-set-validation-header "../nxhtml/rngalt" "\
@@ -426,7 +426,7 @@ Not documented
 ;;;***
 
 ;;;### (autoloads (tidy-build-menu) "../nxhtml/tidy-xhtml" "nxhtml/tidy-xhtml.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from nxhtml/tidy-xhtml.el
 
 (autoload 'tidy-build-menu "../nxhtml/tidy-xhtml" "\
@@ -439,7 +439,7 @@ Used to set up a Tidy menu in your favourite mode.
 
 ;;;### (autoloads (xhtml-help-show-tag-ref xhtml-help-tag-at-point
 ;;;;;;  xhtml-help-show-css-ref) "../nxhtml/xhtml-help" "nxhtml/xhtml-help.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from nxhtml/xhtml-help.el
 
 (autoload 'xhtml-help-show-css-ref "../nxhtml/xhtml-help" "\
@@ -460,7 +460,7 @@ Show xhtml reference for tag name at or before point.
 ;;;***
 
 ;;;### (autoloads (csharp-mode) "../related/csharp-mode" "related/csharp-mode.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from related/csharp-mode.el
 
 (autoload 'csharp-mode "../related/csharp-mode" "\
@@ -479,7 +479,7 @@ Key bindings:
 ;;;***
 
 ;;;### (autoloads (django-mode) "../related/django" "related/django.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from related/django.el
 
 (autoload 'django-mode "../related/django" "\
@@ -491,7 +491,7 @@ This mode only provides syntax highlighting.
 ;;;***
 
 ;;;### (autoloads (javascript-mode) "../related/javascript" "related/javascript.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from related/javascript.el
 
 (autoload 'javascript-mode "../related/javascript" "\
@@ -506,7 +506,7 @@ Key bindings:
 ;;;***
 
 ;;;### (autoloads (javascript-mode) "../related/javascript-old" "related/javascript-old.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from related/javascript-old.el
 
 (autoload 'javascript-mode "../related/javascript-old" "\
@@ -521,7 +521,7 @@ Key bindings:
 ;;;***
 
 ;;;### (autoloads (inferior-moz-mode moz-minor-mode) "../related/moz"
-;;;;;;  "related/moz.el" (19175 10527))
+;;;;;;  "related/moz.el" (19326 4278))
 ;;; Generated autoloads from related/moz.el
 
 (autoload 'moz-minor-mode "../related/moz" "\
@@ -549,7 +549,7 @@ Major mode for interacting with Firefox via MozRepl.
 ;;;***
 
 ;;;### (autoloads (php-mode php-file-patterns) "../related/php-mode"
-;;;;;;  "related/php-mode.el" (19175 10527))
+;;;;;;  "related/php-mode.el" (19326 4278))
 ;;; Generated autoloads from related/php-mode.el
 
 (defvar php-file-patterns '("\\.php[s34]?\\'" "\\.phtml\\'" "\\.inc\\'") "\
@@ -567,7 +567,7 @@ Major mode for editing PHP code.
 ;;;***
 
 ;;;### (autoloads (smarty-mode) "../related/smarty-mode" "related/smarty-mode.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from related/smarty-mode.el
 
 (autoload 'smarty-mode "../related/smarty-mode" "\
@@ -1067,7 +1067,7 @@ For Smarty functions, see PDF or HTML documentation.
 ;;;***
 
 ;;;### (autoloads (tt-mode) "../related/tt-mode" "related/tt-mode.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from related/tt-mode.el
 
 (autoload 'tt-mode "../related/tt-mode" "\
@@ -1079,7 +1079,7 @@ Major mode for editing Template Toolkit files.
 
 ;;;### (autoloads (wikipedia-draft-buffer wikipedia-draft-page wikipedia-draft
 ;;;;;;  wikipedia-mode) "../related/wikipedia-mode" "related/wikipedia-mode.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from related/wikipedia-mode.el
 
 (autoload 'wikipedia-mode "../related/wikipedia-mode" "\
@@ -1185,7 +1185,7 @@ wikipedia-draft-data-file.
 ;;;***
 
 ;;;### (autoloads (ert-run-tests-interactively ert-deftest) "../tests/ert"
-;;;;;;  "tests/ert.el" (19175 10527))
+;;;;;;  "tests/ert.el" (19326 4278))
 ;;; Generated autoloads from tests/ert.el
 
 (autoload 'ert-deftest "../tests/ert" "\
@@ -1201,7 +1201,7 @@ Run the tests specified by SELECTOR and display the results in a buffer.
 ;;;***
 
 ;;;### (autoloads (nxhtmltest-run-Q) "../tests/nxhtmltest-Q" "tests/nxhtmltest-Q.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from tests/nxhtmltest-Q.el
 
 (autoload 'nxhtmltest-run-Q "../tests/nxhtmltest-Q" "\
@@ -1213,7 +1213,7 @@ See `nxhtmltest-run' for more information about the tests.
 ;;;***
 
 ;;;### (autoloads (nxhtmltest-run nxhtmltest-run-indent) "../tests/nxhtmltest-suites"
-;;;;;;  "tests/nxhtmltest-suites.el" (19175 10527))
+;;;;;;  "tests/nxhtmltest-suites.el" (19326 4278))
 ;;; Generated autoloads from tests/nxhtmltest-suites.el
 
 (autoload 'nxhtmltest-run-indent "../tests/nxhtmltest-suites" "\
@@ -1235,8 +1235,8 @@ fail (they corresponds to known errors in nXhtml/Emacs):
 
 ;;;***
 
-;;;### (autoloads (appmenu-add) "appmenu" "util/appmenu.el" (19175
-;;;;;;  10527))
+;;;### (autoloads (appmenu-add) "appmenu" "util/appmenu.el" (19326
+;;;;;;  4278))
 ;;; Generated autoloads from util/appmenu.el
 
 (autoload 'appmenu-add "appmenu" "\
@@ -1250,7 +1250,7 @@ DEFINITION as explained there.
 
 ;;;### (autoloads (as-external-mode as-external-for-wiki as-external-for-mail
 ;;;;;;  as-external-for-xhtml) "as-external" "util/as-external.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/as-external.el
 
 (autoload 'as-external-for-xhtml "as-external" "\
@@ -1312,7 +1312,7 @@ See `as-external-alist' for more information.
 ;;;***
 
 ;;;### (autoloads (chart-make-chart chart-complete) "chart" "util/chart.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/chart.el
 
 (autoload 'chart-complete "chart" "\
@@ -1413,7 +1413,7 @@ Below are some examples.  To test them mark an example and do
 ;;;***
 
 ;;;### (autoloads (css-color-mode css-color-global-mode css-color)
-;;;;;;  "css-color" "util/css-color.el" (19175 10527))
+;;;;;;  "css-color" "util/css-color.el" (19326 4278))
 ;;; Generated autoloads from util/css-color.el
 
 (let ((loads (get 'css-color 'custom-loads))) (if (member '"css-color" loads) nil (put 'css-color 'custom-loads (cons '"css-color" loads))))
@@ -1450,7 +1450,7 @@ point is at a hexadecimal colour:
 ;;;***
 
 ;;;### (autoloads (css-palette-global-mode css-palette css-palette-mode)
-;;;;;;  "css-palette" "util/css-palette.el" (19175 10527))
+;;;;;;  "css-palette" "util/css-palette.el" (19326 4278))
 ;;; Generated autoloads from util/css-palette.el
 
 (autoload 'css-palette-mode "css-palette" "\
@@ -1544,7 +1544,7 @@ See `css-palette-mode' for more information on Css-Palette mode.
 
 ;;;### (autoloads (freemind-to-org-mode freemind-from-org-sparse-tree
 ;;;;;;  freemind-from-org-mode freemind-from-org-mode-node freemind-show)
-;;;;;;  "freemind" "util/freemind.el" (19175 10527))
+;;;;;;  "freemind" "util/freemind.el" (19326 4278))
 ;;; Generated autoloads from util/freemind.el
 
 (autoload 'freemind-show "freemind" "\
@@ -1575,7 +1575,7 @@ Convert FreeMind file MM-FILE to `org-mode' file ORG-FILE.
 ;;;***
 
 ;;;### (autoloads (gimp-can-edit gimp-edit-buffer gimp-edit-file)
-;;;;;;  "gimp" "util/gimp.el" (19175 10527))
+;;;;;;  "gimp" "util/gimp.el" (19326 4278))
 ;;; Generated autoloads from util/gimp.el
 
 (autoload 'gimp-edit-file "gimp" "\
@@ -1595,7 +1595,7 @@ Not documented
 
 ;;;***
 
-;;;### (autoloads (gpl-mode) "gpl" "util/gpl.el" (19175 10527))
+;;;### (autoloads (gpl-mode) "gpl" "util/gpl.el" (19326 4278))
 ;;; Generated autoloads from util/gpl.el
 
 (autoload 'gpl-mode "gpl" "\
@@ -1614,7 +1614,7 @@ such palette into a css-file as hexadecimal color palette.
 ;;;***
 
 ;;;### (autoloads (html-write-mode) "html-write" "util/html-write.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/html-write.el
 
 (autoload 'html-write-mode "html-write" "\
@@ -1645,7 +1645,7 @@ you edit the buffer you may also change the hidden parts.
 ;;;***
 
 ;;;### (autoloads (htmlfontify-buffer) "htmlfontify" "util/htmlfontify.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/htmlfontify.el
 
 (autoload 'htmlfontify-buffer "htmlfontify" "\
@@ -1670,8 +1670,8 @@ hyperlinks as appropriate.
 ;;;***
 
 ;;;### (autoloads (majmodpri majmodpri-apply-priorities majmodpri-apply
-;;;;;;  majmodpri-sort-lists) "majmodpri" "util/majmodpri.el" (19175
-;;;;;;  10527))
+;;;;;;  majmodpri-sort-lists) "majmodpri" "util/majmodpri.el" (19326
+;;;;;;  4278))
 ;;; Generated autoloads from util/majmodpri.el
 
 (autoload 'majmodpri-sort-lists "majmodpri" "\
@@ -1707,8 +1707,8 @@ before applying.
 
 ;;;***
 
-;;;### (autoloads (mlinks-mode) "mlinks" "util/mlinks.el" (19175
-;;;;;;  10527))
+;;;### (autoloads (mlinks-mode) "mlinks" "util/mlinks.el" (19326
+;;;;;;  4278))
 ;;; Generated autoloads from util/mlinks.el
 
 (autoload 'mlinks-mode "mlinks" "\
@@ -1743,7 +1743,7 @@ By default the link moved to will be active, see
 ;;;***
 
 ;;;### (autoloads (mumamo-multi-major-modep mumamo-mark-for-refontification)
-;;;;;;  "mumamo" "util/mumamo.el" (19175 10527))
+;;;;;;  "mumamo" "util/mumamo.el" (19326 4278))
 ;;; Generated autoloads from util/mumamo.el
 
 (autoload 'mumamo-mark-for-refontification "mumamo" "\
@@ -1766,7 +1766,7 @@ Return t if VALUE is a multi major mode function.
 ;;;;;;  jsp-html-mumamo-mode smarty-html-mumamo-mode mjt-html-mumamo-mode
 ;;;;;;  genshi-html-mumamo-mode django-html-mumamo-mode embperl-html-mumamo-mode
 ;;;;;;  nxml-mumamo-mode html-mumamo-mode) "mumamo-fun" "util/mumamo-fun.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/mumamo-fun.el
 
 (autoload 'html-mumamo-mode "mumamo-fun" "\
@@ -1875,7 +1875,7 @@ This also covers inlined style and javascript." t)
 ;;;***
 
 ;;;### (autoloads (mumamo-add-region) "mumamo-regions" "util/mumamo-regions.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/mumamo-regions.el
 
 (autoload 'mumamo-add-region "mumamo-regions" "\
@@ -1885,8 +1885,8 @@ Add a mumamo region.
 
 ;;;***
 
-;;;### (autoloads (n-back-game) "n-back" "util/n-back.el" (19175
-;;;;;;  10527))
+;;;### (autoloads (n-back-game) "n-back" "util/n-back.el" (19326
+;;;;;;  4278))
 ;;; Generated autoloads from util/n-back.el
 
 (autoload 'n-back-game "n-back" "\
@@ -1941,7 +1941,7 @@ new are maybe ... - and you have it available here in Emacs.
 ;;;;;;  ourcomments-move-beginning-of-line major-modep major-or-multi-majorp
 ;;;;;;  unfill-individual-paragraphs unfill-region unfill-paragraph
 ;;;;;;  define-toggle popup-menu-at-point) "ourcomments-util" "util/ourcomments-util.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/ourcomments-util.el
 
 (autoload 'popup-menu-at-point "ourcomments-util" "\
@@ -2214,7 +2214,7 @@ Setup like in `Custom-mode', but without things specific to Custom.
 ;;;***
 
 ;;;### (autoloads (global-pointback-mode pointback-mode) "pointback"
-;;;;;;  "util/pointback.el" (19175 10527))
+;;;;;;  "util/pointback.el" (19326 4278))
 ;;; Generated autoloads from util/pointback.el
 
 (autoload 'pointback-mode "pointback" "\
@@ -2241,8 +2241,8 @@ See `pointback-mode' for more information on Pointback mode.
 
 ;;;***
 
-;;;### (autoloads (rnc-mode) "rnc-mode" "util/rnc-mode.el" (19175
-;;;;;;  10527))
+;;;### (autoloads (rnc-mode) "rnc-mode" "util/rnc-mode.el" (19326
+;;;;;;  4278))
 ;;; Generated autoloads from util/rnc-mode.el
 
 (autoload 'rnc-mode "rnc-mode" "\
@@ -2254,7 +2254,7 @@ Major mode for editing RELAX NG Compact Syntax schemas.
 ;;;***
 
 ;;;### (autoloads (search-form) "search-form" "util/search-form.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/search-form.el
 
 (autoload 'search-form "search-form" "\
@@ -2264,8 +2264,8 @@ Display a form for search and replace.
 
 ;;;***
 
-;;;### (autoloads (sex-mode) "sex-mode" "util/sex-mode.el" (19175
-;;;;;;  10527))
+;;;### (autoloads (sex-mode) "sex-mode" "util/sex-mode.el" (19326
+;;;;;;  4278))
 ;;; Generated autoloads from util/sex-mode.el
 
 (defvar sex-mode nil "\
@@ -2301,8 +2301,8 @@ handled is governed by `sex-keep-dummy-buffer'.
 
 ;;;***
 
-;;;### (autoloads (tabkey2-mode) "tabkey2" "util/tabkey2.el" (19175
-;;;;;;  10527))
+;;;### (autoloads (tabkey2-mode) "tabkey2" "util/tabkey2.el" (19326
+;;;;;;  4278))
 ;;; Generated autoloads from util/tabkey2.el
 
 (defvar tabkey2-mode nil "\
@@ -2352,8 +2352,8 @@ first in tabkey2-mode.
 
 ;;;***
 
-;;;### (autoloads (tyda-lookup-word) "tyda" "util/tyda.el" (19175
-;;;;;;  10527))
+;;;### (autoloads (tyda-lookup-word) "tyda" "util/tyda.el" (19326
+;;;;;;  4278))
 ;;; Generated autoloads from util/tyda.el
 
 (autoload 'tyda-lookup-word "tyda" "\
@@ -2366,7 +2366,7 @@ be opened in your webbrowser with WORD looked up.
 ;;;***
 
 ;;;### (autoloads (udev-cedet-update) "udev-cedet" "util/udev-cedet.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/udev-cedet.el
 
 (autoload 'udev-cedet-update "udev-cedet" "\
@@ -2381,7 +2381,7 @@ Note that if you install CEDET yourself you should not use this function.
 ;;;***
 
 ;;;### (autoloads (udev-ecb-update) "udev-ecb" "util/udev-ecb.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/udev-ecb.el
 
 (autoload 'udev-ecb-update "udev-ecb" "\
@@ -2394,7 +2394,7 @@ For how to start ECB see `udev-ecb-load-ecb'.
 ;;;***
 
 ;;;### (autoloads (udev-rinari-update) "udev-rinari" "util/udev-rinari.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/udev-rinari.el
 
 (autoload 'udev-rinari-update "udev-rinari" "\
@@ -2407,7 +2407,7 @@ see `udev-rinari-dir' and `udev-rinari-load-rinari'.
 ;;;***
 
 ;;;### (autoloads (viper-tutorial) "viper-tut" "util/viper-tut.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/viper-tut.el
 
 (autoload 'viper-tutorial "viper-tut" "\
@@ -2425,7 +2425,7 @@ later.
 ;;;***
 
 ;;;### (autoloads (vline-global-mode vline-mode) "vline" "util/vline.el"
-;;;;;;  (19175 10527))
+;;;;;;  (19326 4278))
 ;;; Generated autoloads from util/vline.el
 
 (autoload 'vline-mode "vline" "\
@@ -2450,8 +2450,8 @@ Display vertical line mode as globally.
 ;;;***
 
 ;;;### (autoloads (winsav-switch-config winsav-save-full-config winsav-save-mode
-;;;;;;  winsav-put-window-tree) "winsav" "util/winsav.el" (19175
-;;;;;;  10527))
+;;;;;;  winsav-put-window-tree) "winsav" "util/winsav.el" (19326
+;;;;;;  4278))
 ;;; Generated autoloads from util/winsav.el
 
 (autoload 'winsav-put-window-tree "winsav" "\
@@ -2533,7 +2533,7 @@ See also option `winsav-save-mode' and command
 ;;;***
 
 ;;;### (autoloads (winsize-save-window-configuration winsize-balance-siblings
-;;;;;;  resize-windows) "winsize" "util/winsize.el" (19175 10527))
+;;;;;;  resize-windows) "winsize" "util/winsize.el" (19326 4278))
 ;;; Generated autoloads from util/winsize.el
 
 (autoload 'resize-windows "winsize" "\
@@ -2752,12 +2752,12 @@ Not documented
 ;;;;;;  "util/ocr-user.el" "util/org-panel.el" "util/pause.el" "util/popcmp.el"
 ;;;;;;  "util/rebind.el" "util/rxi.el" "util/udev-nxhtml.el" "util/udev.el"
 ;;;;;;  "util/useful-commands.el" "util/whelp.el" "util/zen-mode.el")
-;;;;;;  (19326 3221 755099))
+;;;;;;  (19337 40195 778270))
 
 ;;;***
 
 ;;;### (autoloads (nxhtmlmaint-byte-uncompile-all nxhtmlmaint-start-byte-compilation)
-;;;;;;  "../nxhtmlmaint" "nxhtmlmaint.el" (19175 10527))
+;;;;;;  "../nxhtmlmaint" "nxhtmlmaint.el" (19326 4278))
 ;;; Generated autoloads from nxhtmlmaint.el
 
 (autoload 'nxhtmlmaint-start-byte-compilation "../nxhtmlmaint" "\

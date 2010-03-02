@@ -1,17 +1,17 @@
 ;;; -*-Emacs-Lisp-*-
 ;;; scala-mode-feature-electric.el - electric editing commands for scala files
 
-;; Copyright (C) 2008 by Hemant Kumar (gethemant at gmail to com)
+;; Copyright (C) 2009 by Hemant Kumar (gethemant at gmail to com)
 ;; Modified by Anders Bach Nielsen <andersbach.nielsen at epfl dot ch> to fit into the scala mode
 ;; Based on ruby-electric by Dee Zsombor <dee dot zsombor at gmail dot com>.
 ;; Keywords: scala languages oop
-;; $Id: scala-mode-feature-electric.el 16886 2009-01-09 16:58:22Z cunei $
+;; $Id: scala-mode-feature-electric.el 20031 2009-12-07 11:59:42Z cunei $
 
 ;;; License
 
 ;; SCALA LICENSE
 ;;  
-;; Copyright (c) 2002-2009 EPFL, Lausanne, unless otherwise specified.
+;; Copyright (c) 2002-2010 EPFL, Lausanne, unless otherwise specified.
 ;; All rights reserved.
 ;;  
 ;; This software was developed by the Programming Methods Laboratory of the
