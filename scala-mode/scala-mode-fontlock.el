@@ -1,16 +1,16 @@
 ;;; -*-Emacs-Lisp-*-
 ;;; scala-mode-fontlock.el - 
 
-;; Copyright (C) 2008 Scala Dev Team at EPFL
+;; Copyright (C) 2009 Scala Dev Team at EPFL
 ;; Authors: See AUTHORS file
 ;; Keywords: scala languages oop
-;; $Id: scala-mode-fontlock.el 16886 2009-01-09 16:58:22Z cunei $
+;; $Id: scala-mode-fontlock.el 20031 2009-12-07 11:59:42Z cunei $
 
 ;;; License
 
 ;; SCALA LICENSE
 ;;  
-;; Copyright (c) 2002-2009 EPFL, Lausanne, unless otherwise specified.
+;; Copyright (c) 2002-2010 EPFL, Lausanne, unless otherwise specified.
 ;; All rights reserved.
 ;;  
 ;; This software was developed by the Programming Methods Laboratory of the
@@ -49,7 +49,12 @@
 
 (provide 'scala-mode-fontlock)
 
+(require 'cl)
 (require 'font-lock)
+(require 'scala-mode-constants)
+(require 'scala-mode-lib)
+(require 'scala-mode-navigation)
+
 
 (defun scala-mark-borders (funs)
   (loop for (fun . flag) in funs
