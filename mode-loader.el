@@ -218,6 +218,10 @@
 
 (defun nml-load-clojure-mode ()
   (require 'clojure-mode)
+
+  (add-hook 'clojure-mode-hook 
+	    '(lambda ()
+	       (paredit-mode)))
   
   (nml-add-to-load-path "swank-clojure")
   (require 'swank-clojure-autoload)
